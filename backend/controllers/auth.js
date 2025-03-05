@@ -67,7 +67,7 @@ return res.status(201).json({
     statusCode: 201,
     success: true,
     user: rest,
-    token,
+ 
 })
 console.log(newUser)
 } catch (error) {  
@@ -84,8 +84,42 @@ console.log(newUser)
 }
 
 export const logIn = async (req, res)=>{
+    try {
+      const {username, password} = req.body;
 
-    res.send("log in")
+      const user = await User.findOne({username})
+        
+      const IscorrectedPassword = await bcryptjs.compare(password, user?.password  || "")
+        if(!user || !IscorrectedPassword){
+            return res.status(400).json({
+                statusCode: 400,
+                success: false,
+                message:"Invalid username or password! "
+            })
+        }
+
+        const token = generatedToken(user._id, res)
+
+        const { password:pass, ...rest} = user._doc
+
+        return res.status(200).json({
+            statusCode: 200,
+            success: true,
+            user: rest,
+            
+        })
+       console.log(user)
+
+    } catch (error) {
+        console.log(error.message)
+
+    
+    return res.status(500).json({
+        statusCode: 500,
+        success: false,
+        message:"Internal Server Error"
+    })
+    }
    
 }
 
@@ -94,7 +128,27 @@ export const logIn = async (req, res)=>{
 
 export const logOut = async (req, res)=>{
 
-    res.send("log out")
+  try {
+      
+    res.cookie("token", "")
+    return res.status(200).json({
+        statusCode: 200,
+        success: true,
+        message:"User log out successfully"
+        
+    })
+
+
+  } catch (error) {
+     console.log(error.message)
+
+    
+    return res.status(500).json({
+        statusCode: 500,
+        success: false,
+        message:"Internal Server Error"
+    })
+  }
    
 }
 

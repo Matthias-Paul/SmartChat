@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import cors from "cors"
 import cookieParser from "cookie-parser" 
 import authRoutes from "./routes/auth.route.js"
+import messagesRoutes from "./routes/messages.route.js"
 import connectToMongoDB from "./database/connectToMongo.js" 
 
 dotenv.config();
@@ -11,7 +12,7 @@ const app = express()
 const PORT = process.env.PORT 
 
 app.use(cors({
-    origin: ["http://localhost:5173"], // Add your frontend's deployed URL
+    origin: ["http://localhost:5174"], // Add your frontend's deployed URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }));
@@ -29,6 +30,11 @@ app.get("/", (req, res)=>{
 })
 
 app.use("/api/auth/", authRoutes )
+app.use("/api/messages/", messagesRoutes )
+
+
+
+
 
 app.listen(PORT, ()=>{
     connectToMongoDB()

@@ -2,8 +2,13 @@ import express from "express"
 import dotenv from "dotenv"
 import cors from "cors"
 import cookieParser from "cookie-parser" 
+
+
 import authRoutes from "./routes/auth.route.js"
 import messagesRoutes from "./routes/messages.route.js"
+import usersRoutes from "./routes/users.route.js"
+    
+
 import connectToMongoDB from "./database/connectToMongo.js" 
 
 dotenv.config();
@@ -31,6 +36,7 @@ app.get("/", (req, res)=>{
 
 app.use("/api/auth/", authRoutes )
 app.use("/api/messages/", messagesRoutes )
+app.use("/api/users/", usersRoutes )
 
 
 

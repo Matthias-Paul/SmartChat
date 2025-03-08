@@ -1,10 +1,12 @@
 import express from "express"
-import { sendMessage  } from "../controllers/message.js"
-
+import { sendMessage, getMessage  } from "../controllers/message.js"
+import protectRoute from "../middleware/protectRoute.js"
 const router = express.Router()
 
 
-router.post("/send-message/:senderId", sendMessage)
+
+router.get("/get-message/:id", protectRoute, getMessage)
+router.post("/send-message/:id", protectRoute, sendMessage)
 
 
 

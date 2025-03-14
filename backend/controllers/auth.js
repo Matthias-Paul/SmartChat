@@ -83,45 +83,54 @@ console.log(newUser)
   
 }
 
-export const logIn = async (req, res)=>{
-    try {
-      const {username, password} = req.body;
 
-      const user = await User.findOne({username})
-        
-      const IscorrectedPassword = await bcryptjs.compare(password, user?.password  || "")
-        if(!user || !IscorrectedPassword){
+export const logIn = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        // Check if user exists
+        const user = await User.findOne({ username });
+        if (!user) {
             return res.status(400).json({
                 statusCode: 400,
                 success: false,
-                message:"Invalid username or password! "
-            })
+                message: "Invalid username or password!",
+            });
         }
 
-        const token = generatedToken(user._id, res)
+        // Validate password
+        const isCorrectPassword = await bcryptjs.compare(password, user.password);
+        if (!isCorrectPassword) {
+            return res.status(400).json({
+                statusCode: 400,
+                success: false,
+                message: "Invalid username or password!",
+            });
+        }
 
-        const { password:pass, ...rest} = user._doc
+        // Generate token
+        const token = generatedToken(user._id, res);
+
+  
+        // Remove password before sending user data
+        const { password: pass, ...rest } = user.toObject();
 
         return res.status(200).json({
             statusCode: 200,
             success: true,
             user: rest,
-            
-        })
-       console.log(user)
+            token,
+        });
 
     } catch (error) {
-        console.log(error.message)
-
-    
-    return res.status(500).json({
-        statusCode: 500,
-        success: false,
-        message:"Internal Server Error"
-    })
+        console.error(error.message);
+        return res.status(500).json({
+            statusCode: 500,
+            success: false,
+            message: "Internal Server Error",
+        });
     }
-   
-}
+};
 
 
 

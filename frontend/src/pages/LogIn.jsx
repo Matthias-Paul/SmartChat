@@ -71,7 +71,7 @@ const logInMutation = useMutation({
 
   return (
     <>
-      <div className="max-w-[500px] flex my-[10px] px-[30px] h-screen flex-col  m-auto ">
+      <div className="max-w-[500px] flex  px-[30px] h-screen flex-col  m-auto ">
         <div className=" opacity-[0.7] w-full m-auto p-[30px] text-center text-white shadow-md rounded-lg bg-gray-400 ">
           <h1 className="  text-[30px] font-[500] inline "> Login </h1>
           <span className=" text-[30px] font-[500] text-blue-300 ">

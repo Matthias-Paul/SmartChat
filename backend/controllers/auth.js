@@ -12,11 +12,17 @@ try {
         return res.status(400).json({
             statusCode: 400,
             success: false,
-            message:"All fields are required "
-        })
+            message:"All fields are required "})
     }
-
-
+    
+    if(password.length < 4 ){
+        return res.status(400).json({
+            statusCode: 400,
+            success: false,
+            message: "Password must have at least four characters",
+        }); 
+    }
+ 
     if (password !== confirmPassword){
         return res.status(400).json({
             statusCode: 400,
@@ -56,7 +62,7 @@ const newUser = new User({
     password:hashPassword,
     gender,
 })
-const token = generatedToken(newUser._id, res)
+const token =await generatedToken(newUser._id, res)
 
 
 await newUser.save()
@@ -65,7 +71,7 @@ const { password:pass, ...rest} = newUser._doc
 
 return res.status(201).json({
     statusCode: 201,
-    success: true,
+    success: true,       
     user: rest,
  
 })
@@ -88,17 +94,24 @@ export const logIn = async (req, res) => {
     try {
         const { username, password } = req.body;
 
+          if(!username || !password || username.trim() ==="" || password.trim() ==="" ){
+
+        return res.status(400).json({
+            statusCode: 400,
+            success: false,
+            message:"All fields are required "})
+    }
+
         // Check if user exists
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(400).json({
+            return res.status(400).json({   
                 statusCode: 400,
                 success: false,
                 message: "Invalid username or password!",
             });
         }
 
-        // Validate password
         const isCorrectPassword = await bcryptjs.compare(password, user.password);
         if (!isCorrectPassword) {
             return res.status(400).json({
@@ -108,21 +121,20 @@ export const logIn = async (req, res) => {
             });
         }
 
-        // Generate token
-        const token = generatedToken(user._id, res);
-
+       
+        const token = await generatedToken(user._id, res);
+            console.log(token)
   
-        // Remove password before sending user data
         const { password: pass, ...rest } = user.toObject();
 
         return res.status(200).json({
             statusCode: 200,
-            success: true,
+            success: true,            
             user: rest,
-            token,
-        });
+        
+        });   
 
-    } catch (error) {
+    } catch (error) {   
         console.error(error.message);
         return res.status(500).json({
             statusCode: 500,
@@ -139,7 +151,11 @@ export const logOut = async (req, res)=>{
 
   try {
       
-    res.cookie("token", "")
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "strict",
+    });   
+
     return res.status(200).json({
         statusCode: 200,
         success: true,

@@ -11,11 +11,12 @@ const generatedToken = async (userId, res)=>{
         expiresIn:"7d"
       })
 
-      res.cookie("token",  userToken,{
-        httpOnly:true,
-        sameSite:true,
-      })
-                   
+      res.cookie("token", userToken, {
+        httpOnly: true,
+        sameSite: "strict",
+      });
+           
+    return userToken;        
 }
 
 export default generatedToken;

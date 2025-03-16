@@ -11,6 +11,9 @@ import usersRoutes from "./routes/users.route.js"
 
 import connectToMongoDB from "./database/connectToMongo.js" 
 
+import path from "path";
+
+
 dotenv.config();
 const app = express()
 
@@ -28,7 +31,7 @@ app.use(cors({
   app.use(express.json());
   app.use(cookieParser())
 
-
+const _dirname = path.resolve()
 
 app.get("/", (req, res)=>{
     res.send("home Page")
@@ -39,7 +42,11 @@ app.use("/api/messages/", messagesRoutes )
 app.use("/api/users/", usersRoutes )
 
 
+app.use(express.static(path.join(_dirname, "/frontend/dist")));
 
+app.get("*", (req, res) =>
+  res.sendFile(path.join(_dirname, "/frontend/dist/index.html"))
+);
 
 
 app.listen(PORT, ()=>{

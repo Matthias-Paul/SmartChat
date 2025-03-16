@@ -1,7 +1,14 @@
 import profile from "../assets/background.jpg";
 import { FaPaperPlane } from "react-icons/fa";
 import { TiMessages } from "react-icons/ti"
+import {  useSelector } from "react-redux";
+
+
+
 function MessageComponent() {
+  const { loggedInUser } = useSelector((state)=> state.user)
+
+
   const noChatSelected = true;
   return (
     <>
@@ -9,7 +16,7 @@ function MessageComponent() {
         <>
           <div className="w-full m-auto  px-[10px] overflow-x-auto h-screen flex justify-center items-center  bg-black  text-white  opacity-[0.5]">
             <div className="m-auto  text-[30px]  text-center flex flex-col ">
-              <div> Welcome Adesina Paul </div>
+              <div> Welcome {loggedInUser?.username} </div>
               <div>Select a chat to start messaging </div>
               <TiMessages className=" m-auto text-[70px]   " />
             </div>

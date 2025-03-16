@@ -6,9 +6,10 @@ dotenv.config();
 
 export const protectRoute = async (req, res, next) => {
   try {
-    const authHeader = req.headers["authorization"];
+    // Get token from cookies
+    const userToken = req.cookies.token;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!userToken) {
       return res.status(401).json({
         statusCode: 401,
         success: false,
@@ -16,10 +17,10 @@ export const protectRoute = async (req, res, next) => {
       });
     }
 
-    const userToken = authHeader.split(" ")[1];
-
+    // Verify token
     const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
 
+    // Find user excluding password
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
@@ -30,6 +31,7 @@ export const protectRoute = async (req, res, next) => {
       });
     }
 
+    // Attach user data to request object
     req.user = user;
     next();
   } catch (error) {

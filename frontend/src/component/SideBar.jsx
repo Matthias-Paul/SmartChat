@@ -12,13 +12,13 @@ import profile from "../assets/background.jpg";
 function SideBar() {
   const dispatch = useDispatch();
   const { users } = useSelector((state)=> state.user)
-// https://smartChat-wtxa.onrender.com
+
   const [logOutLoading, setLogOutLoading] = useState(false);
 
   const handleLogOut = async () => {
     try {
       setLogOutLoading(true);
-      const res = await fetch("http://localhost:8000/api/auth/log-out", {
+      const res = await fetch("https://smartChat-wtxa.onrender.com/api/auth/log-out", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +41,7 @@ function SideBar() {
   };
 
   const fetchMessages = async () => {
-    const res = await fetch("http://localhost:8000/api/users/get-users", {
+    const res = await fetch("https://smartChat-wtxa.onrender.com/api/users/get-users", {
       method: "GET",
       credentials: "include",
     });

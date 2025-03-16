@@ -19,13 +19,16 @@ function SignUp() {
   const signUpMutation = useMutation({
     mutationFn: async () => {
       setLoading(true);
-      const res = await fetch("http://localhost:8000/api/auth/sign-up", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(inputFields),
-      });
+      const res = await fetch(
+        "https://smartChat-wtxa.onrender.com/api/auth/sign-up",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(inputFields),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();

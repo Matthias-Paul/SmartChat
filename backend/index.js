@@ -35,9 +35,6 @@ app.use(cookieParser());
 // Serve static files BEFORE API routes
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
-app.get("/", (req, res) => {
-  res.send("Home Page");
-});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messagesRoutes);

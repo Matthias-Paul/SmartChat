@@ -2,9 +2,9 @@ import {createSlice} from "@reduxjs/toolkit"
 
 const initialState ={
     loggedInUser: null,
-    selectedMessages: null,
+    selectedConversation: null,
     messages: [],
-    user:[]
+    users:[]
 }
 
 const userSlice = createSlice({
@@ -18,8 +18,8 @@ const userSlice = createSlice({
       logOutSuccess: (state)=>{
         state.loggedInUser = null
       },
-      selectedMessagesSuccess: (state, action)=>{
-        state.selectedMessages = action.payload
+      selectedConversationSuccess: (state, action)=>{
+        state.selectedConversation = action.payload
       },
       setMessagesSuccess: (state, action)=>{
         state.messages = action.payload
@@ -35,7 +35,7 @@ const userSlice = createSlice({
 export const {
   loggedInSuccess,
   logOutSuccess,
-  selectedMessagesSuccess,
+  selectedConversationSuccess,
   setMessagesSuccess,
   setUsersSuccess,
 } = userSlice.actions;

@@ -5,20 +5,19 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { logOutSuccess } from "../redux/userSlice.js";
 import { useQuery } from "@tanstack/react-query";
-import { setUsersSuccess } from "../redux/userSlice.js"
+import { setUsersSuccess, selectedConversationSuccess } from "../redux/userSlice.js"
 
 import profile from "../assets/background.jpg";
 
 function SideBar() {
   const dispatch = useDispatch();
-  const { users } = useSelector((state)=> state.user)
+  const { users, selectedConversation, messages } = useSelector((state)=> state.user)
 
   const [logOutLoading, setLogOutLoading] = useState(false);
-
   const handleLogOut = async () => {
     try {
       setLogOutLoading(true);
-      const res = await fetch("https://smartChat-wtxa.onrender.com/api/auth/log-out", {
+      const res = await fetch("http://localhost:8000/api/auth/log-out", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +40,7 @@ function SideBar() {
   };
 
   const fetchMessages = async () => {
-    const res = await fetch("https://smartChat-wtxa.onrender.com/api/users/get-users", {
+    const res = await fetch("http://localhost:8000/api/users/get-users", {
       method: "GET",
       credentials: "include",
     });
@@ -58,10 +57,19 @@ function SideBar() {
 
   useEffect(() => {
     if (data) {
-dispatch(setUsersSuccess(data.users))  
-    console.log("Users:", users);
+      dispatch(setUsersSuccess(data.users))  
+      console.log("Users:", users);
     }
   }, [data]);
+
+
+    const handleSelectedConversation = (user) =>{
+
+      dispatch(selectedConversationSuccess(user))
+    
+    }
+     
+   
 
   return (
     <div className="relative w-[340px] lg:w-[400px] flex-shrink-0 pb-[20px] bg-black text-white border-r-[1px] border-gray-500 shadow-md h-screen overflow-hidden opacity-[0.5]">
@@ -77,10 +85,11 @@ dispatch(setUsersSuccess(data.users))
       </div>
 
       <div className="h-screen mt-[85px] overflow-y-auto">
-        {users?.map((user) => (
+        {users?.map((user, index) => (
           <div
             key={user._id}
-            className="flex flex-col border-b-[0.5px] border-gray-200 pb-[15px] mt-[20px] cursor-pointer mx-[12px] py-[10px]"
+            onClick={ ()=> handleSelectedConversation(user) }
+            className={`flex font-[500] flex-col ${user?._id === selectedConversation?._id  ? "bg-blue-400  text-black " : ""   } ${index === users.length -1 ? "border-none":  "border-b-[0.5px]" }  border-gray-200 pb-[15px]  cursor-pointer px-[12px] py-[15px]`}
           >
             <div className="flex items-center">
               <img
@@ -89,7 +98,7 @@ dispatch(setUsersSuccess(data.users))
                 alt="Profile"
               />
               <div className="flex text-[15px] ml-[10px] flex-col">
-                <div>{user?.username}</div>
+                <div>{user?.fullName}</div>
                 <div className="truncate mt-[-3px] w-[210px]">
                   last message sent
                 </div>

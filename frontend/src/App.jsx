@@ -5,7 +5,7 @@ import LogIn from "./pages/LogIn.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import Home from "./pages/Home.jsx";
 import { Toaster } from "react-hot-toast";
-import useSocket from "./socketClient/UseSocket";
+import useSocket from "./socketClient/useSocket";
 
 function App() {
   const { loggedInUser } = useSelector((state) => state.user);

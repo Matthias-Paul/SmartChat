@@ -1,5 +1,5 @@
 import Message from "../models/message.model.js"
-
+import {getReceiverId, io} from "../socket/socket.js"
 import Conversation from "../models/conversation.model.js"
 
 
@@ -29,8 +29,7 @@ try {
     }) 
 
 
-    // await newMessage.save()
-    // await conversation.save()
+
      
 
     await newMessage.save();  
@@ -42,7 +41,10 @@ try {
 
     await conversation.save(); 
  
-     
+     const receiverSocketId = getReceiverId(receiverId)
+     if (receiverSocketId){
+      io.to(receiverSocketId).emit("newMessage", newMessage)
+     }
 
        res.status(201).json({
             statusCode: 201,

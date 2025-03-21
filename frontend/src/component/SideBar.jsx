@@ -10,14 +10,19 @@ import { setUsersSuccess, selectedConversationSuccess } from "../redux/userSlice
 import profile from "../assets/background.jpg";
 
 function SideBar() {
-  const dispatch = useDispatch();
-  const { users, selectedConversation, messages } = useSelector((state)=> state.user)
 
+  const dispatch = useDispatch();
+  const { users, selectedConversation, loggedInUser} = useSelector((state)=> state.user)
+    const { onlineUsers } = useSelector((state) => state.socket);
+    const isOnline = onlineUsers.includes(loggedInUser?._id)
+    console.log(loggedInUser._id, onlineUsers )
+    console.log(isOnline)
+  const [search, setSearch] = useState("")
   const [logOutLoading, setLogOutLoading] = useState(false);
   const handleLogOut = async () => {
     try {
       setLogOutLoading(true);
-      const res = await fetch("http://localhost:8000/api/auth/log-out", {
+      const res = await fetch("https://smartChat-wtxa.onrender.com/api/auth/log-out", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +45,7 @@ function SideBar() {
   };
 
   const fetchMessages = async () => {
-    const res = await fetch("http://localhost:8000/api/users/get-users", {
+    const res = await fetch("https://smartChat-wtxa.onrender.com/api/users/get-users", {
       method: "GET",
       credentials: "include",
     });
@@ -69,34 +74,63 @@ function SideBar() {
     
     }
      
-   
+const handleSearch = (e) => {
+  const query = e.target.value;
+  setSearch(query);
 
+
+
+  
+};
+   const filteredUsers = users?.filter((user) =>
+    user.fullName.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // if(filteredUsers.length === 0){
+  //   toast.error("No such user found!")
+  // }
   return (
-    <div className="relative w-[340px] lg:w-[400px] flex-shrink-0 pb-[20px] bg-black text-white border-r-[1px] border-gray-500 shadow-md h-screen overflow-hidden opacity-[0.5]">
+    <div className="relative pt-[65px]   w-[340px] w-full sm:w-[400px] flex-shrink-0 pb-[20px] bg-black text-white border-r-[1px] border-gray-500 shadow-md h-screen overflow-hidden opacity-[0.5]">
       <div className="flex items-center absolute w-full bg-black pb-[20px] gap-x-[15px] pt-[20px] px-[12px]">
         <input
           type="text"
+          value={search}
+          onChange={handleSearch}
           placeholder="Search..."
           className="border border-white p-[10px] focus:outline-none rounded-[20px] w-full"
         />
-        <button className="w-[40px] h-[40px] flex-shrink-0 rounded-[50%] cursor-pointer bg-blue-500">
-          <IoSearchSharp className="w-[30px] m-auto" />
-        </button>
+       
       </div>
 
       <div className="h-screen mt-[85px] overflow-y-auto">
-        {users?.map((user, index) => (
+        {filteredUsers?.map((user, index) => (
           <div
-            key={user._id}
-            onClick={ ()=> handleSelectedConversation(user) }
-            className={`flex font-[500] flex-col ${user?._id === selectedConversation?._id  ? "bg-blue-400  text-black " : ""   } ${index === users.length -1 ? "border-none":  "border-b-[0.5px]" }  border-gray-200 pb-[15px]  cursor-pointer px-[12px] py-[15px]`}
+            key={user?._id}
+            onClick={() => handleSelectedConversation(user)}
+            className={`flex  font-[500] flex-col ${
+              user?._id === selectedConversation?._id
+                ? "bg-blue-400  text-black "
+                : ""
+            } ${
+              index === users.length - 1 ? "border-none" : "border-b-[0.5px]"
+            }  border-gray-200 pb-[15px]  cursor-pointer px-[12px] py-[10px]`}
           >
             <div className="flex items-center">
-              <img
-                className="w-[40px] h-[40px] flex-shrink-0 rounded-[50%]"
+             <div className="relative h-[50px] w-[40px]  " >
+               <img
+                className="w-[40px]  h-[40px] flex-shrink-0 rounded-[50%]"
                 src={user?.profilePicture || profile}
                 alt="Profile"
               />
+              {
+                isOnline && onlineUsers.includes(user._id)  ?  (
+                  <div className="absolute mt-[-78px] top-[20px] z-100 right-[-4px] text-[60px] text-orange-900" > . </div>
+
+                ): ( 
+                  null
+                )
+              }
+              </div>
               <div className="flex text-[15px] ml-[10px] flex-col">
                 <div>{user?.fullName}</div>
                 <div className="truncate mt-[-3px] w-[210px]">
@@ -107,6 +141,10 @@ function SideBar() {
           </div>
         ))}
       </div>
+
+
+
+
       <div
         onClick={handleLogOut}
         className="mt-auto flex right-0 absolute bottom-0"

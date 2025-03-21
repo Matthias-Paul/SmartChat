@@ -8,11 +8,13 @@ import path from "path";
 import authRoutes from "./routes/auth.route.js";
 import messagesRoutes from "./routes/messages.route.js";
 import usersRoutes from "./routes/users.route.js";
-
+import { app, server } from "./socket/socket.js"
 import connectToMongoDB from "./database/connectToMongo.js";
 
 dotenv.config();
-const app = express();
+
+
+
 const PORT = process.env.PORT || 5000; 
 
 
@@ -21,12 +23,12 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["http://localhost:5174"],   
+    origin: ["https://smartChat-wtxa.onrender.com"],   //   http://localhost:5174
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,  
   })
 );
-//   https://smartChat-wtxa.onrender.com
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -46,7 +48,7 @@ app.use(express.static(path.join(_dirname, "/frontend/dist")))
         
 app.get("*", (req, res)  => res.sendFile(path.join(_dirname, "/frontend/dist/index.html")))
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   connectToMongoDB();
   console.log(` Server running on port ${PORT}`);
 });

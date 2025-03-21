@@ -5,12 +5,12 @@ const initialState ={
     selectedConversation: null,
     messages: [],
     users:[]
-}
-
+}       
+      
 const userSlice = createSlice({
     name: "user",     
-    initialState,
-    reducers: {
+    initialState,     
+    reducers: {    
       
       loggedInSuccess: (state, action)=>{
         state.loggedInUser = action.payload

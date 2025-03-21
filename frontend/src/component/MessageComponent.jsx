@@ -1,4 +1,5 @@
 import profile from "../assets/background.jpg";
+import notificationSound from "../assets/notificationSound.mp3"
 import { FaPaperPlane } from "react-icons/fa";
 import { TiMessages } from "react-icons/ti";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,18 +7,23 @@ import {
   selectedConversationSuccess,
   setMessagesSuccess
 } from "../redux/userSlice.js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import { useMutation, useQuery, useQueryClient  } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function MessageComponent() {
+  const queryClient = useQueryClient();
+  const lastMessageRef = useRef();
 
-const queryClient = useQueryClient();
-  
   const [sendMessage, setSendMessage] = useState("");
   const { loggedInUser, selectedConversation, messages } = useSelector(
     (state) => state.user
   );
+  const { socket } = useSelector((state) => state.socket);
+
+  const profilePic = loggedInUser?._id
+    ? loggedInUser?.profilePicture
+    : selectedConversation?.profilePicture;
 
   const dispatch = useDispatch();
 
@@ -29,47 +35,19 @@ const queryClient = useQueryClient();
     return () => dispatch(selectedConversationSuccess(null));
   }, [dispatch]);
 
-  const sendMessageMutation = useMutation({
-    mutationFn: async () => {
-      if (!selectedConversation?._id) {
-        throw new Error("No conversation selected.");
-      }
-      const res = await fetch(
-        `http://localhost:8000/api/messages/send-message/${selectedConversation?._id}`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ message:sendMessage }),
-        }
-      );
+  useEffect(() => {
+    setTimeout(() => {
+      lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }, [messages]);
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to send a message");
-      }
-
-      return res.json();
-    },
-    onSuccess: (data) => {
-      setSendMessage("");
-       queryClient.invalidateQueries(["conversation", selectedConversation?._id]);
-      dispatch(setMessagesSuccess([...messages, data]));
-      toast.success("Sent");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
+  // Fetch Messages
   const { data } = useQuery({
     queryKey: ["conversation", selectedConversation?._id],
     queryFn: async () => {
-       if (!selectedConversation?._id) return null; 
+      if (!selectedConversation?._id) return null;
       const res = await fetch(
-        `http://localhost:8000/api/messages/get-message/${selectedConversation._id}`,
+        `https://smartChat-wtxa.onrender.com/api/messages/get-message/${selectedConversation._id}`,
         {
           method: "GET",
           credentials: "include",
@@ -89,70 +67,115 @@ const queryClient = useQueryClient();
       console.log("Fetched conversation:", data.conversationMessage);
     } else {
       console.log("No messages found or failed to fetch.");
+      dispatch(setMessagesSuccess([]));
+      toast.error("No message yet")
     }
   }, [data, dispatch]);
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!sendMessage.trim()) return;
-    sendMessageMutation.mutate(sendMessage);
+  // Listen for New Messages from Socket.io
+ useEffect(() => {
+  if (!socket) return;
+
+  const messageListener = (newMessage) => {
+    dispatch(setMessagesSuccess([...messages, newMessage]));
   };
+
+  socket.on("newMessage", messageListener);
+
+  return () => {
+    socket.off("newMessage", messageListener);
+  };
+}, [socket, messages, dispatch]);
+
+
+  const handleSendMessage = async (e) => {
+  e.preventDefault();
+  if (!sendMessage.trim() || !selectedConversation?._id) return;
+
+  const messageData = {
+    message: sendMessage, 
+  };
+
+  try {
+    
+    const res = await fetch(
+      `https://smartChat-wtxa.onrender.com/api/messages/send-message/${selectedConversation._id}`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(messageData),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to send message");
+    }
+
+    const savedMessage = await res.json(); 
+    socket.emit("sendMessage", savedMessage.newMessage);
+    const sound = new Audio(notificationSound)
+    sound.play()
+    dispatch(setMessagesSuccess([...messages, savedMessage.newMessage]));
+
+    setSendMessage("");
+  } catch (error) {
+    console.error("Message send error:", error);
+    toast.error("Failed to send message");
+  }
+};
 
   return (
     <>
       {!selectedConversation ? (
-        <div className="w-full m-auto px-[10px] overflow-x-auto h-screen flex justify-center items-center bg-black text-white opacity-[0.5]">
-          <div className="m-auto text-[30px] text-center flex flex-col">
-            <div> Welcome {loggedInUser?.username} </div>
-            <div>Select a chat to start messaging </div>
+        <div className="w-full m-auto px-[10px] pt-[65px] overflow-x-auto h-screen flex justify-center items-center bg-black text-white opacity-[0.5]">
+          <div className="m-auto text-[30px] hidden sm:flex text-center flex-col">
+            <div>Welcome {loggedInUser?.username}</div>
+            <div>Select a chat to start messaging</div>
             <TiMessages className="m-auto text-[70px]" />
           </div>
         </div>
       ) : (
-        <div className="flex-1 max-w-[1000px] relative bg-black text-white opacity-[0.5]">
-          <div className="bg-gray-500 w-full pl-[10px] absolute flex justify-between text-white p-[15px] gap-x-[10px] text-[24px]">
-            <div
-              onClick={handleBack}
-              className="inline text-[20px] cursor-pointer"
-            >
-              &#8592; Back
+        <div className="flex-1 max-w-[1000px] hidden sm:flex relative bg-black text-white opacity-[0.5]">
+          <div className="pt-[65px] pb-[85px] flex flex-col w-full h-screen overflow-y-auto space-y-[20px]">
+            <div className="bg-gray-500 w-full bg-black pl-[10px] px-[-12px] absolute flex justify-between text-white p-[15px] gap-x-[10px] text-[24px]">
+              <div onClick={handleBack} className="inline text-[20px] cursor-pointer">
+                &#8592; Back
+              </div>
+              <div className="text-pink-100">{selectedConversation?.fullName}</div>
             </div>
-            <div className="text-pink-100">
-              {selectedConversation?.fullName}
-            </div>
-          </div>
-
-          <div className="pt-[80px] flex flex-col h-screen overflow-y-auto px-[12px] pb-[90px] space-y-[20px]">
+            
             {messages?.length > 0 ? (
-              messages.map((msg) => (
+              messages.map((msg, index) => (
                 <div
-                  key={msg._id}
-                  className={`flex w-full flex-col `}
+                  key={msg._id || index}
+                  ref={lastMessageRef}
+                  className={`flex ${index === 0 ? "pt-[75px] " : ""} px-[12px] w-full flex-col `}
                 >
-                  <div className={`flex ${msg?.senderId === loggedInUser?._id ? "flex-row-reverse":"" } gap-x-[5px] items-center`}>
-                    <img
-                      className="w-[40px] h-[40px] flex-shrink-0 rounded-[50%]"
-                      src={selectedConversation?.profilePicture || profile}
-                      alt="Profile"
-                    />
-                    <div className="bg-gray-800 rounded-md  overflow-wrap max-w-[500px]  p-[6px]">
+                  <div
+                    className={`flex ${msg?.senderId === loggedInUser?._id ? "flex-row-reverse " : ""} gap-x-[5px] items-center`}
+                  >
+                    <img className="w-[40px] h-[40px] flex-shrink-0 rounded-[50%]" src={profilePic || profile} alt="Profile" />
+                    <div
+                      className={`bg-gray-800 ${msg?.senderId === loggedInUser?._id ? "" : "bg-white text-black "} rounded-md overflow-wrap max-w-[500px] p-[6px]`}
+                    >
                       {msg?.message}
                     </div>
                   </div>
 
-                  <div className={`float-right ${ msg?.senderId === loggedInUser?._id ? "":"flex-row-reverse ml-[45px] "  } flex justify-end mr-[45px] text-gray-400 text-sm`}>
-                    {msg?.createdAt
-                      ? new Date(msg.createdAt).toLocaleTimeString()
-                      : ""}
+                  <div className={`float-right ${msg?.senderId === loggedInUser?._id ? "" : "flex-row-reverse ml-[45px] "} flex justify-end mr-[45px] text-gray-400 text-sm`}>
+                    {msg?.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : ""}
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-center text-gray-400">No messages yet</div>
+              <div className="text-center pt-[75px] text-[18px] text-gray-400">No messages yet</div>
             )}
           </div>
 
-          <div className="max-w-[998px] w-full absolute bottom-0 mb-[1px] bg-black">
+          <div className="max-w-[998px] w-full absolute bottom-1 bg-black">
             <form onSubmit={handleSendMessage}>
               <div className="relative px-[12px]">
                 <input

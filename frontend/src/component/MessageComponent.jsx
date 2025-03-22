@@ -46,15 +46,17 @@ function MessageComponent() {
   if (!socket) return;
 
   const messageListener = (newMessage) => {
-
+    // Ensure the message belongs to the selected conversation
     if (newMessage.conversationId !== selectedConversation?._id) return;
 
+    // Play notification sound if the message is from someone else
     if (newMessage.sender !== loggedInUser?._id) {
       const sound = new Audio(notificationSound);
       sound.play();
     }
 
-    dispatch(setMessagesSuccess([...messages, newMessage]));
+    // **Update messages instantly**
+    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, newMessage]));
   };
 
   socket.on("newMessage", messageListener);
@@ -62,7 +64,7 @@ function MessageComponent() {
   return () => {
     socket.off("newMessage", messageListener);
   };
-}, [socket, messages, dispatch, loggedInUser, selectedConversation]);
+}, [socket, dispatch, loggedInUser, selectedConversation]);
 
 
   const { data } = useQuery({
@@ -107,7 +109,6 @@ function MessageComponent() {
   };
 
   try {
-    
     const res = await fetch(
       `https://smartChat-wtxa.onrender.com/api/messages/send-message/${selectedConversation._id}`,
       {
@@ -125,8 +126,11 @@ function MessageComponent() {
     }
 
     const savedMessage = await res.json(); 
+
+    // **Emit the message to the receiver**
     socket.emit("sendMessage", savedMessage.newMessage);
-   
+
+    // **Update messages state immediately**
     dispatch(setMessagesSuccess([...messages, savedMessage.newMessage]));
 
     setSendMessage("");
@@ -135,6 +139,7 @@ function MessageComponent() {
     toast.error("Failed to send message");
   }
 };
+
 
   return (
     <>

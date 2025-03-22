@@ -92,7 +92,7 @@ function MessageComponent() {
   return () => {
     socket.off("newMessage", messageListener);
   };
-}, [socket, messages, dispatch]);
+}, [socket, messages, dispatch, loggedInUser, selectedConversation]);
 
 
   const handleSendMessage = async (e) => {

@@ -78,7 +78,6 @@ function MessageComponent() {
 
   const messageListener = (newMessage) => {
 
-     if (newMessage.conversationId !== selectedConversation?._id) return;
 
     if (newMessage.sender !== loggedInUser?._id) {
       const sound = new Audio(notificationSound);

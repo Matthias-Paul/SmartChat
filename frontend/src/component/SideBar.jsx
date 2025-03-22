@@ -96,7 +96,7 @@ function SideBar() {
           return (
             <div
               key={user._id}
-              onClick={() => handleSelectedConversation(user)}.
+              onClick={() => handleSelectedConversation(user)}
               className={`flex flex-col ${
                 user?._id === selectedConversation?._id ? "bg-blue-400 text-black" : ""
               } ${

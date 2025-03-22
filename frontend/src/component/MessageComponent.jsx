@@ -42,27 +42,29 @@ function MessageComponent() {
   }, [messages]);
 
 
-    useEffect(() => {
-    if (!socket) return;
+ useEffect(() => {
+  if (!socket) return;
 
-    const messageListener = (newMessage) => {
-      // Play notification sound if the message is received by the logged-in user
-      if (newMessage.sender !== loggedInUser?._id) {
-        const sound = new Audio(notificationSound);
-        sound.play();
-      }
+  const messageListener = (newMessage) => {
 
-      dispatch(setMessagesSuccess([...messages, newMessage]));
-    };
+    if (newMessage.conversationId !== selectedConversation?._id) return;
 
-    socket.on("newMessage", messageListener);
+    if (newMessage.sender !== loggedInUser?._id) {
+      const sound = new Audio(notificationSound);
+      sound.play();
+    }
 
-    return () => {
-      socket.off("newMessage", messageListener);
-    };
-  }, [socket, messages, dispatch, loggedInUser]);
+    dispatch(setMessagesSuccess([...messages, newMessage]));
+  };
 
-  // Fetch Messages
+  socket.on("newMessage", messageListener);
+
+  return () => {
+    socket.off("newMessage", messageListener);
+  };
+}, [socket, messages, dispatch, loggedInUser, selectedConversation]);
+
+
   const { data } = useQuery({
     queryKey: ["conversation", selectedConversation?._id],
     queryFn: async () => {
@@ -89,7 +91,7 @@ function MessageComponent() {
     } else {
       console.log("No messages found or failed to fetch.");
       dispatch(setMessagesSuccess([]));
-      toast.error("No message yet")
+      
     }
   }, [data, dispatch]);
 

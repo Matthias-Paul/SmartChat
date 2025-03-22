@@ -68,23 +68,23 @@ function MessageComponent() {
     } else {
       console.log("No messages found or failed to fetch.");
       dispatch(setMessagesSuccess([]));
-      
+      toast.error("No message yet")
     }
   }, [data, dispatch]);
 
+  // Listen for New Messages from Socket.io
  useEffect(() => {
   if (!socket) return;
 
   const messageListener = (newMessage) => {
-    if (newMessage.conversationId !== selectedConversation?._id) return;
+
+     if (newMessage.conversationId !== selectedConversation?._id) return;
 
     if (newMessage.sender !== loggedInUser?._id) {
       const sound = new Audio(notificationSound);
       sound.play();
     }
-
-    // Ensure we update the messages list properly
-    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, newMessage]));
+    dispatch(setMessagesSuccess([...messages, newMessage]));
   };
 
   socket.on("newMessage", messageListener);
@@ -92,7 +92,7 @@ function MessageComponent() {
   return () => {
     socket.off("newMessage", messageListener);
   };
-}, [socket, dispatch, loggedInUser, selectedConversation]);
+}, [socket, messages, dispatch, loggedInUser, selectedConversation]);
 
 
   const handleSendMessage = async (e) => {
@@ -104,6 +104,7 @@ function MessageComponent() {
   };
 
   try {
+    
     const res = await fetch(
       `https://smartChat-wtxa.onrender.com/api/messages/send-message/${selectedConversation._id}`,
       {
@@ -122,9 +123,8 @@ function MessageComponent() {
 
     const savedMessage = await res.json(); 
     socket.emit("sendMessage", savedMessage.newMessage);
-    
-    // Update messages properly
-    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, savedMessage.newMessage]));
+   
+    dispatch(setMessagesSuccess([...messages, savedMessage.newMessage]));
 
     setSendMessage("");
   } catch (error) {
@@ -144,7 +144,7 @@ function MessageComponent() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 max-w-[1000px] relative bg-black text-white opacity-[0.5]">
+        <div className="flex-1 max-w-[1000px]  relative bg-black text-white opacity-[0.5]">
           <div className="pt-[65px] pb-[85px] flex flex-col w-full h-screen overflow-y-auto space-y-[20px]">
             <div className="bg-gray-500 w-full bg-black pl-[10px] px-[-12px] absolute flex justify-between text-white p-[15px] gap-x-[10px] text-[24px]">
               <div onClick={handleBack} className="inline text-[20px] cursor-pointer">

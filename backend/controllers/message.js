@@ -105,3 +105,25 @@ export const getMessage = async (req, res) => {
 };
 
 
+export const getConversations = async (req, res)=>{
+   try {
+    const conversations = await Conversation.find(); 
+    
+    return res.status(200).json({
+      statusCode: 200,
+      success: true,
+      conversations,
+    });
+
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    
+    return res.status(500).json({
+      statusCode: 500,
+      success: false,
+      message: "Failed to fetch conversations",
+      error: error.message,
+    });
+  }
+
+} 

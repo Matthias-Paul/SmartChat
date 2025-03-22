@@ -9,9 +9,10 @@ import profile from "../assets/background.jpg";
 
 function SideBar() {
   const dispatch = useDispatch();
-  const { users, selectedConversation, loggedInUser, conversations =[] } = useSelector((state) => state.user);
+  const { users, selectedConversation, loggedInUser, conversations=[] } = useSelector((state) => state.user);
+ 
   const { onlineUsers } = useSelector((state) => state.socket);
-    const isOnline = onlineUsers.includes(loggedInUser?._id)
+ const isOnline = onlineUsers.includes(loggedInUser?._id)
 
   const [search, setSearch] = useState("");
   const [logOutLoading, setLogOutLoading] = useState(false);
@@ -34,22 +35,22 @@ function SideBar() {
     }
   }, [data, dispatch]);
 
-
+  // Handle user selection
   const handleSelectedConversation = (user) => {
     dispatch(selectedConversationSuccess(user));
   };
 
-
+  // Handle search input
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
 
-
+  // Filter users based on search
   const filteredUsers = users?.filter((user) =>
     user.fullName.toLowerCase().includes(search.toLowerCase())
   );
 
-
+  // Handle logout
   const handleLogOut = async () => {
     try {
       setLogOutLoading(true);
@@ -73,7 +74,7 @@ function SideBar() {
   };
 
   return (
-    <div className="relative pt-[65px] w-full  flex-shrink-0 pb-[20px] bg-black opacity-[0.5] text-white border-r border-gray-500 shadow-md h-screen overflow-hidden">
+    <div className="relative pt-[65px] w-full opacity-[0.5] flex-shrink-0 pb-[20px] bg-black text-white border-r border-gray-500 shadow-md h-screen overflow-hidden">
       {/* Search Bar */}
       <div className="flex items-center absolute w-full bg-black pb-[20px] gap-x-[15px] pt-[20px] px-[12px]">
         <input
@@ -85,12 +86,12 @@ function SideBar() {
         />
       </div>
 
-    
+      {/* User List */}
       <div className="h-screen mt-[85px] overflow-y-auto">
         {filteredUsers?.map((user, index) => {
-          const conversation = conversations.find((c) => c?.user?._id === user?._id);
+          const conversation = conversations.find((c) => c.user._id === user._id);
           const lastMessage = conversation?.messages?.length
-            ? conversation.messages[conversation.messages.length - 1]
+            ? conversation.messages[conversation.messages.length - 1].text
             : "No messages yet";
 
           return (
@@ -98,9 +99,9 @@ function SideBar() {
               key={user._id}
               onClick={() => handleSelectedConversation(user)}
               className={`flex flex-col ${
-                user?._id === selectedConversation?._id ? "bg-blue-400 text-black" : ""
+                user._id === selectedConversation?._id ? "bg-blue-400 text-black" : ""
               } ${
-                index === users?.length - 1 ? "border-none" : "border-b border-gray-200"
+                index === users.length - 1 ? "border-none" : "border-b border-gray-200"
               } pb-[15px] cursor-pointer px-[12px] py-[10px]`}
             >
               <div className="flex items-center">
@@ -110,9 +111,8 @@ function SideBar() {
                     src={user?.profilePicture || profile}
                     alt="Profile"
                   />
-                 
-      {
-                isOnline && onlineUsers?.includes(user?._id)  ?  (
+                  {
+                isOnline && onlineUsers.includes(user._id)  ?  (
                   <div className="absolute mt-[-78px] top-[20px] z-100 right-[-4px] text-[60px] text-orange-900" > . </div>
 
                 ): ( 
@@ -132,7 +132,7 @@ function SideBar() {
         })}
       </div>
 
-      
+      {/* Logout Button */}
       <div onClick={handleLogOut} className="absolute bottom-0 right-0">
         <button
           className="mr-[12px] mb-[20px] w-[40px] h-[40px] flex-shrink-0 rounded-full cursor-pointer bg-blue-500"
@@ -149,6 +149,3 @@ export default SideBar;
 
 
 
-
-
-    

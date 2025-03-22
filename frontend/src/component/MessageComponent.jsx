@@ -97,12 +97,7 @@ useEffect(() => {
   };
 }, [socket, messages, dispatch, loggedInUser, selectedConversation]);
 
-  socket.on("newMessage", messageListener);
 
-  return () => {
-    socket.off("newMessage", messageListener);
-  };
-}, [socket, messages, dispatch, loggedInUser, selectedConversation]);
 
 
  const handleSendMessage = async (e) => {

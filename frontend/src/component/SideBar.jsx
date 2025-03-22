@@ -90,13 +90,13 @@ function SideBar() {
         {filteredUsers?.map((user, index) => {
           const conversation = conversations.find((c) => c?.user?._id === user?._id);
           const lastMessage = conversation?.messages?.length
-            ? conversation.messages[conversation.messages.length - 1].text
+            ? conversation.messages[conversation.messages.length - 1]
             : "No messages yet";
 
           return (
             <div
               key={user._id}
-              onClick={() => handleSelectedConversation(user)}
+              onClick={() => handleSelectedConversation(user)}.
               className={`flex flex-col ${
                 user?._id === selectedConversation?._id ? "bg-blue-400 text-black" : ""
               } ${

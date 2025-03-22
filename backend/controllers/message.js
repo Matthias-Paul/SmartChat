@@ -105,16 +105,20 @@ export const getMessage = async (req, res) => {
 };
 
 
-export const getConversations = async (req, res)=>{
-   try {
-    const conversations = await Conversation.find().populate("messages");; 
-    
+
+export const getConversations = async (req, res) => {
+  try {
+    const conversations = await Conversation.find()
+      .populate({
+        path: "messages",
+        options: { sort: { createdAt: -1 }, limit: 1 }, 
+      })
+      
     return res.status(200).json({
       statusCode: 200,
       success: true,
       conversations,
     });
-
   } catch (error) {
     console.error("Error fetching conversations:", error);
     
@@ -125,5 +129,4 @@ export const getConversations = async (req, res)=>{
       error: error.message,
     });
   }
-
-} 
+};

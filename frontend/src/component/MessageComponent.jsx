@@ -72,19 +72,30 @@ function MessageComponent() {
   }, [data, dispatch]);
 
   // Listen for New Messages from Socket.io
- useEffect(() => {
+useEffect(() => {
   if (!socket) return;
 
   const messageListener = (newMessage) => {
-  if (newMessage.conversationId === selectedConversation?._id) {
-    if (newMessage.sender !== loggedInUser?._id) {
-      const sound = new Audio(notificationSound);
-      sound.play();
-    }
+    // Ensure the message is for the current chat
+    if (
+      newMessage.conversationId === selectedConversation?._id ||
+      newMessage.senderId === selectedConversation?._id
+    ) {
+      if (newMessage.senderId !== loggedInUser?._id) {
+        const sound = new Audio(notificationSound);
+        sound.play();
+      }
 
-     dispatch(setMessagesSuccess([...messages, newMessage]));
-  }
-};
+      dispatch(setMessagesSuccess([...messages, newMessage]));
+    }
+  };
+
+  socket.on("newMessage", messageListener);
+
+  return () => {
+    socket.off("newMessage", messageListener);
+  };
+}, [socket, messages, dispatch, loggedInUser, selectedConversation]);
 
   socket.on("newMessage", messageListener);
 

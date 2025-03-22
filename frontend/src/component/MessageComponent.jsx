@@ -82,7 +82,7 @@ function MessageComponent() {
       sound.play();
     }
 
-    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, newMessage]));
+     dispatch(setMessagesSuccess([...messages, newMessage]));
   }
 };
 
@@ -94,16 +94,17 @@ function MessageComponent() {
 }, [socket, messages, dispatch, loggedInUser, selectedConversation]);
 
 
-  const handleSendMessage = async (e) => {
+ const handleSendMessage = async (e) => {
   e.preventDefault();
   if (!sendMessage.trim() || !selectedConversation?._id) return;
 
   const messageData = {
-    message: sendMessage, 
+    message: sendMessage,
+    senderId: loggedInUser?._id,
+    receiverId: selectedConversation?._id, // Ensure the receiver gets it
   };
 
   try {
-    
     const res = await fetch(
       `https://smartChat-wtxa.onrender.com/api/messages/send-message/${selectedConversation._id}`,
       {
@@ -120,9 +121,14 @@ function MessageComponent() {
       throw new Error("Failed to send message");
     }
 
-    const savedMessage = await res.json(); 
-    socket.emit("sendMessage", savedMessage.newMessage);
-   
+    const savedMessage = await res.json();
+
+    // Emit to the specific receiver
+    socket.emit("sendMessage", {
+      ...savedMessage.newMessage,
+      receiverId: selectedConversation?._id,
+    });
+
     dispatch(setMessagesSuccess([...messages, savedMessage.newMessage]));
 
     setSendMessage("");

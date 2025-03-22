@@ -10,13 +10,13 @@ import profile from "../assets/background.jpg";
 function SideBar() {
   const dispatch = useDispatch();
   const { users, selectedConversation, loggedInUser } = useSelector((state) => state.user);
- 
   const { onlineUsers } = useSelector((state) => state.socket);
- const isOnline = onlineUsers.includes(loggedInUser?._id)
 
   const [search, setSearch] = useState("");
   const [logOutLoading, setLogOutLoading] = useState(false);
-  const [conversations, setConversations]  = useState([])
+  const [conversations, setConversations] = useState([]);
+
+  const isOnline = onlineUsers.includes(loggedInUser?._id);
 
   // Fetch users
   const fetchUsers = async () => {
@@ -31,26 +31,30 @@ function SideBar() {
   const { data } = useQuery({ queryKey: ["users"], queryFn: fetchUsers });
 
   useEffect(() => {
-    if (data) {
+    if (data?.users) {
       dispatch(setUsersSuccess(data.users));
     }
   }, [data, dispatch]);
 
- const fetchLastMessages = async () => {
+  // Fetch last messages
+  const fetchLastMessages = async () => {
     const res = await fetch("https://smartChat-wtxa.onrender.com/api/messages/get-conversations", {
       method: "GET",
       credentials: "include",
     });
-    if (!res.ok) throw new Error("Failed to fetch conversation");
+    if (!res.ok) throw new Error("Failed to fetch conversations");
     return res.json();
   };
 
-    const { data: lastMsg } = useQuery({ queryKey: ["conversations"], queryFn: fetchLastMessages });
+  const { data: lastMsg } = useQuery({ queryKey: ["conversations"], queryFn: fetchLastMessages });
+
   useEffect(() => {
-    if (lastMsg) {
-     setConversations(lastMsg.conversations)    }
+    if (lastMsg?.conversations) {
+      setConversations(lastMsg.conversations);
+    }
   }, [lastMsg]);
 
+  console.log(lastMsg)
 
   // Handle user selection
   const handleSelectedConversation = (user) => {
@@ -103,13 +107,11 @@ function SideBar() {
         />
       </div>
 
-      {/* User List */}
       <div className="h-screen mt-[85px] overflow-y-auto">
         {filteredUsers?.map((user, index) => {
-          const conversation = conversations.find((c) => c?.user?._id === user?._id);
-          const lastMessage = conversation?.messages?.length
-            ? conversation.messages[conversation.messages.length - 1].text
-            : "No messages yet";
+       
+          const conversation = conversations?.find((c) => c?.participants?.some((p) => p?._id === user?._id));
+          const lastMessage = conversation?.messages?.[0]?.text || "No messages yet";
 
           return (
             <div
@@ -117,9 +119,8 @@ function SideBar() {
               onClick={() => handleSelectedConversation(user)}
               className={`flex flex-col ${
                 user._id === selectedConversation?._id ? "bg-blue-400 text-black" : ""
-              } ${
-                index === users.length - 1 ? "border-none" : "border-b border-gray-200"
-              } pb-[15px] cursor-pointer px-[12px] py-[10px]`}
+              } ${index === users.length - 1 ? "border-none" : "border-b border-gray-200"}
+               pb-[15px] cursor-pointer px-[12px] py-[10px]`}
             >
               <div className="flex items-center">
                 <div className="relative h-[50px] w-[40px]">
@@ -128,14 +129,11 @@ function SideBar() {
                     src={user?.profilePicture || profile}
                     alt="Profile"
                   />
-                  {
-                isOnline && onlineUsers.includes(user._id)  ?  (
-                  <div className="absolute mt-[-78px] top-[20px] z-100 right-[-4px] text-[60px] text-orange-900" > . </div>
-
-                ): ( 
-                  null
-                )
-              }
+                  {isOnline && onlineUsers.includes(user._id) && (
+                    <div className="absolute mt-[-78px] top-[20px] z-100 right-[-4px] text-[60px] text-orange-900">
+                      .
+                    </div>
+                  )}
                 </div>
                 <div className="flex text-[15px] ml-[10px] flex-col">
                   <div>{user?.fullName}</div>
@@ -163,6 +161,3 @@ function SideBar() {
 }
 
 export default SideBar;
-
-
-

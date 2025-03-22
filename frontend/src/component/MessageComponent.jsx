@@ -68,23 +68,23 @@ function MessageComponent() {
     } else {
       console.log("No messages found or failed to fetch.");
       dispatch(setMessagesSuccess([]));
-      toast.error("No message yet")
+      
     }
   }, [data, dispatch]);
 
-  // Listen for New Messages from Socket.io
  useEffect(() => {
   if (!socket) return;
 
   const messageListener = (newMessage) => {
-
-     if (newMessage.conversationId !== selectedConversation?._id) return;
+    if (newMessage.conversationId !== selectedConversation?._id) return;
 
     if (newMessage.sender !== loggedInUser?._id) {
       const sound = new Audio(notificationSound);
       sound.play();
     }
-    dispatch(setMessagesSuccess([...messages, newMessage]));
+
+    // Ensure we update the messages list properly
+    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, newMessage]));
   };
 
   socket.on("newMessage", messageListener);
@@ -92,7 +92,7 @@ function MessageComponent() {
   return () => {
     socket.off("newMessage", messageListener);
   };
-}, [socket, messages, dispatch, loggedInUser, selectedConversation]);
+}, [socket, dispatch, loggedInUser, selectedConversation]);
 
 
   const handleSendMessage = async (e) => {
@@ -104,7 +104,6 @@ function MessageComponent() {
   };
 
   try {
-    
     const res = await fetch(
       `https://smartChat-wtxa.onrender.com/api/messages/send-message/${selectedConversation._id}`,
       {
@@ -123,8 +122,9 @@ function MessageComponent() {
 
     const savedMessage = await res.json(); 
     socket.emit("sendMessage", savedMessage.newMessage);
-   
-    dispatch(setMessagesSuccess([...messages, savedMessage.newMessage]));
+    
+    // Update messages properly
+    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, savedMessage.newMessage]));
 
     setSendMessage("");
   } catch (error) {

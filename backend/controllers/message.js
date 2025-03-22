@@ -111,9 +111,10 @@ export const getConversations = async (req, res) => {
     const conversations = await Conversation.find()
       .populate({
         path: "messages",
-        options: { sort: { createdAt: -1 }, limit: 1 }, 
+        options: { sort: { createdAt: -1 }, limit: 1 },
       })
-      
+      .populate("participants", "fullName profilePicture"); // Populate participants
+
     return res.status(200).json({
       statusCode: 200,
       success: true,
@@ -121,7 +122,7 @@ export const getConversations = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching conversations:", error);
-    
+
     return res.status(500).json({
       statusCode: 500,
       success: false,

@@ -41,6 +41,27 @@ function MessageComponent() {
     }, 100);
   }, [messages]);
 
+
+    useEffect(() => {
+    if (!socket) return;
+
+    const messageListener = (newMessage) => {
+      // Play notification sound if the message is received by the logged-in user
+      if (newMessage.sender !== loggedInUser?._id) {
+        const sound = new Audio(notificationSound);
+        sound.play();
+      }
+
+      dispatch(setMessagesSuccess([...messages, newMessage]));
+    };
+
+    socket.on("newMessage", messageListener);
+
+    return () => {
+      socket.off("newMessage", messageListener);
+    };
+  }, [socket, messages, dispatch, loggedInUser]);
+
   // Fetch Messages
   const { data } = useQuery({
     queryKey: ["conversation", selectedConversation?._id],
@@ -73,20 +94,7 @@ function MessageComponent() {
   }, [data, dispatch]);
 
   // Listen for New Messages from Socket.io
- useEffect(() => {
-  if (!socket) return;
-
-  const messageListener = (newMessage) => {
-    dispatch(setMessagesSuccess([...messages, newMessage]));
-  };
-
-  socket.on("newMessage", messageListener);
-
-  return () => {
-    socket.off("newMessage", messageListener);
-  };
-}, [socket, messages, dispatch]);
-
+ 
 
   const handleSendMessage = async (e) => {
   e.preventDefault();
@@ -116,8 +124,7 @@ function MessageComponent() {
 
     const savedMessage = await res.json(); 
     socket.emit("sendMessage", savedMessage.newMessage);
-    const sound = new Audio(notificationSound)
-    sound.play()
+   
     dispatch(setMessagesSuccess([...messages, savedMessage.newMessage]));
 
     setSendMessage("");

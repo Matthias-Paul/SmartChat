@@ -9,13 +9,14 @@ import profile from "../assets/background.jpg";
 
 function SideBar() {
   const dispatch = useDispatch();
-  const { users, selectedConversation, loggedInUser, conversations=[] } = useSelector((state) => state.user);
+  const { users, selectedConversation, loggedInUser } = useSelector((state) => state.user);
  
   const { onlineUsers } = useSelector((state) => state.socket);
  const isOnline = onlineUsers.includes(loggedInUser?._id)
 
   const [search, setSearch] = useState("");
   const [logOutLoading, setLogOutLoading] = useState(false);
+  const [conversations, setConversations]  = useState([])
 
   // Fetch users
   const fetchUsers = async () => {
@@ -34,6 +35,22 @@ function SideBar() {
       dispatch(setUsersSuccess(data.users));
     }
   }, [data, dispatch]);
+
+ const fetchLastMessages = async () => {
+    const res = await fetch("https://smartChat-wtxa.onrender.com/api/messages/get-conversations", {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to fetch conversation");
+    return res.json();
+  };
+
+    const { data: lastMsg } = useQuery({ queryKey: ["conversations"], queryFn: fetchLastMessages });
+  useEffect(() => {
+    if (lastMsg) {
+     setConversations(lastMsg.conversations)    }
+  }, [lastMsg]);
+
 
   // Handle user selection
   const handleSelectedConversation = (user) => {
@@ -89,7 +106,7 @@ function SideBar() {
       {/* User List */}
       <div className="h-screen mt-[85px] overflow-y-auto">
         {filteredUsers?.map((user, index) => {
-          const conversation = conversations.find((c) => c.user._id === user._id);
+          const conversation = conversations.find((c) => c?.user?._id === user?._id);
           const lastMessage = conversation?.messages?.length
             ? conversation.messages[conversation.messages.length - 1].text
             : "No messages yet";

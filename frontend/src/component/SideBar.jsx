@@ -54,8 +54,6 @@ function SideBar() {
     }
   }, [lastMsg]);
 
-  console.log(lastMsg)
-
   // Handle user selection
   const handleSelectedConversation = (user) => {
     dispatch(selectedConversationSuccess(user));
@@ -71,31 +69,8 @@ function SideBar() {
     user.fullName.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Handle logout
-  const handleLogOut = async () => {
-    try {
-      setLogOutLoading(true);
-      const res = await fetch("https://smartChat-wtxa.onrender.com/api/auth/log-out", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to log out");
-      }
-
-      setLogOutLoading(false);
-      dispatch(logOutSuccess());
-      toast.success("Logged out successfully!");
-    } catch (error) {
-      setLogOutLoading(false);
-      toast.error("Something went wrong!");
-    }
-  };
-
   return (
-    <div className="relative pt-[65px] w-full opacity-[0.5] flex-shrink-0 pb-[20px] bg-black text-white border-r border-gray-500 shadow-md h-screen overflow-hidden">
+    <div className="relative pt-[65px] w-full flex-shrink-0 pb-[20px] bg-black text-white border-r border-gray-500 shadow-md h-screen overflow-hidden">
       {/* Search Bar */}
       <div className="flex items-center absolute w-full bg-black pb-[20px] gap-x-[15px] pt-[20px] px-[12px]">
         <input
@@ -109,8 +84,8 @@ function SideBar() {
 
       <div className="h-screen mt-[85px] overflow-y-auto">
         {filteredUsers?.map((user, index) => {
-       
-          const lastMessage = conversations?.messages?.[0]?.message || "No messages yet";
+          const userConversation = conversations.find(conv => conv.participants.includes(user._id));
+          const lastMessage = userConversation?.messages?.length ? userConversation.messages[userConversation.messages.length - 1].message : "No messages yet";
 
           return (
             <div
@@ -129,7 +104,7 @@ function SideBar() {
                     alt="Profile"
                   />
                   {isOnline && onlineUsers.includes(user._id) && (
-                    <div className="absolute mt-[-78px] top-[20px] z-100 right-[-4px] text-[60px] text-orange-900">
+                    <div className="absolute top-[20px] right-[-4px] text-[60px] text-orange-900">
                       .
                     </div>
                   )}

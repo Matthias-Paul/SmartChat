@@ -111,7 +111,7 @@ function SideBar() {
         {filteredUsers?.map((user, index) => {
        
           const conversation = conversations?.find((c) => c?.participants?.some((p) => p?._id === user?._id));
-          const lastMessage = conversation?.messages?.[0]?.text || "No messages yet";
+          const lastMessage = conversation?.messages?.[0]?.message || "No messages yet";
 
           return (
             <div

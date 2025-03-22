@@ -145,7 +145,7 @@ function MessageComponent() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 max-w-[1000px] hidden sm:flex relative bg-black text-white opacity-[0.5]">
+        <div className="flex-1 w-full  flex relative bg-black text-white opacity-[0.5]">
           <div className="pt-[65px] pb-[85px] flex flex-col w-full h-screen overflow-y-auto space-y-[20px]">
             <div className="bg-gray-500 w-full bg-black pl-[10px] px-[-12px] absolute flex justify-between text-white p-[15px] gap-x-[10px] text-[24px]">
               <div onClick={handleBack} className="inline text-[20px] cursor-pointer">

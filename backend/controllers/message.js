@@ -107,7 +107,7 @@ export const getMessage = async (req, res) => {
 
 export const getConversations = async (req, res)=>{
    try {
-    const conversations = await Conversation.find(); 
+    const conversations = await Conversation.find().populate("messages");; 
     
     return res.status(200).json({
       statusCode: 200,

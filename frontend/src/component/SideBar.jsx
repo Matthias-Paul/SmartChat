@@ -110,8 +110,7 @@ function SideBar() {
       <div className="h-screen mt-[85px] overflow-y-auto">
         {filteredUsers?.map((user, index) => {
        
-          const conversation = conversations?.find((c) => c?.participants?.some((p) => p?._id === user?._id));
-          const lastMessage = conversation?.messages?.[0]?.message || "No messages yet";
+          const lastMessage = conversations?.messages?.[0]?.message || "No messages yet";
 
           return (
             <div

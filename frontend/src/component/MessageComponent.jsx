@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function MessageComponent() {
   const queryClient = useQueryClient();
-  const lastMessageRef = useRef();
+  const chatContainerRef = useRef();
 
   const [sendMessage, setSendMessage] = useState("");
   const { loggedInUser, selectedConversation, messages } = useSelector(
@@ -35,11 +35,16 @@ function MessageComponent() {
     return () => dispatch(selectedConversationSuccess(null));
   }, [dispatch]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  }, [messages]);
+useEffect(() => {
+  const chatContainer = chatContainerRef.current;
+  if (chatContainer) {
+    chatContainer.scrollTo({
+      top: chatContainer.scrollHeight,
+      behavior: "smooth",
+    });
+  }
+}, [messages]);
+
 
   // Fetch Messages
   const { data } = useQuery({
@@ -157,18 +162,18 @@ useEffect(() => {
       ) : (
         <div className="flex-1 max-w-[1000px]  relative bg-black text-white opacity-[0.5]">
           <div className="pt-[65px] pb-[85px] flex flex-col w-full h-screen overflow-y-auto space-y-[20px]">
-            <div className="bg-gray-500 w-full max-w-[998px] bg-black  pl-[10px] px-[-12px] absolute flex justify-between text-white p-[15px] gap-x-[10px] text-[24px]">
+            <div className="bg-gray-500 w-full  bg-black  pl-[10px] px-[-12px] absolute flex justify-between text-white p-[15px] gap-x-[10px] text-[24px]">
               <div onClick={handleBack} className="inline text-[20px] cursor-pointer">
                 &#8592; Back
               </div>
-              <div className="text-pink-100">{selectedConversation?.fullName}</div>
+              <div className ="text-pink-100">{selectedConversation?.fullName}</div>
             </div>
             
             {messages?.length > 0 ? (
               messages.map((msg, index) => (
                 <div
                   key={msg._id || index}
-                  ref={lastMessageRef}
+                  ref={chatContainerRef}
                   className={`flex ${index === 0 ? "pt-[75px] " : ""} px-[12px] w-full flex-col `}
                 >
                   <div

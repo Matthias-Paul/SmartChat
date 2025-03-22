@@ -64,11 +64,10 @@ function MessageComponent() {
   useEffect(() => {
     if (data?.conversationMessage) {
       dispatch(setMessagesSuccess(data.conversationMessage));
-      console.log("Fetched conversation:", data.conversationMessage);
     } else {
       console.log("No messages found or failed to fetch.");
       dispatch(setMessagesSuccess([]));
-      toast.error("No message yet")
+
     }
   }, [data, dispatch]);
 
@@ -77,14 +76,15 @@ function MessageComponent() {
   if (!socket) return;
 
   const messageListener = (newMessage) => {
-
-
+  if (newMessage.conversationId === selectedConversation?._id) {
     if (newMessage.sender !== loggedInUser?._id) {
       const sound = new Audio(notificationSound);
       sound.play();
     }
-    dispatch(setMessagesSuccess([...messages, newMessage]));
-  };
+
+    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, newMessage]));
+  }
+};
 
   socket.on("newMessage", messageListener);
 

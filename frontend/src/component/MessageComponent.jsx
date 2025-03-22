@@ -41,32 +41,7 @@ function MessageComponent() {
     }, 100);
   }, [messages]);
 
-
- useEffect(() => {
-  if (!socket) return;
-
-  const messageListener = (newMessage) => {
-    // Ensure the message belongs to the selected conversation
-    if (newMessage.conversationId !== selectedConversation?._id) return;
-
-    // Play notification sound if the message is from someone else
-    if (newMessage.sender !== loggedInUser?._id) {
-      const sound = new Audio(notificationSound);
-      sound.play();
-    }
-
-    // **Update messages instantly**
-    dispatch(setMessagesSuccess((prevMessages) => [...prevMessages, newMessage]));
-  };
-
-  socket.on("newMessage", messageListener);
-
-  return () => {
-    socket.off("newMessage", messageListener);
-  };
-}, [socket, dispatch, loggedInUser, selectedConversation]);
-
-
+  // Fetch Messages
   const { data } = useQuery({
     queryKey: ["conversation", selectedConversation?._id],
     queryFn: async () => {
@@ -93,12 +68,32 @@ function MessageComponent() {
     } else {
       console.log("No messages found or failed to fetch.");
       dispatch(setMessagesSuccess([]));
-      
+      toast.error("No message yet")
     }
   }, [data, dispatch]);
 
   // Listen for New Messages from Socket.io
- 
+ useEffect(() => {
+  if (!socket) return;
+
+  const messageListener = (newMessage) => {
+
+     if (newMessage.conversationId !== selectedConversation?._id) return;
+
+    if (newMessage.sender !== loggedInUser?._id) {
+      const sound = new Audio(notificationSound);
+      sound.play();
+    }
+    dispatch(setMessagesSuccess([...messages, newMessage]));
+  };
+
+  socket.on("newMessage", messageListener);
+
+  return () => {
+    socket.off("newMessage", messageListener);
+  };
+}, [socket, messages, dispatch]);
+
 
   const handleSendMessage = async (e) => {
   e.preventDefault();
@@ -109,6 +104,7 @@ function MessageComponent() {
   };
 
   try {
+    
     const res = await fetch(
       `https://smartChat-wtxa.onrender.com/api/messages/send-message/${selectedConversation._id}`,
       {
@@ -126,11 +122,8 @@ function MessageComponent() {
     }
 
     const savedMessage = await res.json(); 
-
-    // **Emit the message to the receiver**
     socket.emit("sendMessage", savedMessage.newMessage);
-
-    // **Update messages state immediately**
+   
     dispatch(setMessagesSuccess([...messages, savedMessage.newMessage]));
 
     setSendMessage("");
@@ -139,7 +132,6 @@ function MessageComponent() {
     toast.error("Failed to send message");
   }
 };
-
 
   return (
     <>
@@ -152,7 +144,7 @@ function MessageComponent() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 w-full  flex relative bg-black text-white opacity-[0.5]">
+        <div className="flex-1 max-w-[1000px] hidden sm:flex relative bg-black text-white opacity-[0.5]">
           <div className="pt-[65px] pb-[85px] flex flex-col w-full h-screen overflow-y-auto space-y-[20px]">
             <div className="bg-gray-500 w-full bg-black pl-[10px] px-[-12px] absolute flex justify-between text-white p-[15px] gap-x-[10px] text-[24px]">
               <div onClick={handleBack} className="inline text-[20px] cursor-pointer">

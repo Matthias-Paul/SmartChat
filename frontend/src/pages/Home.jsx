@@ -1,9 +1,45 @@
-import { useSelector } from "react-redux";
+import {useEffect} from "react"
+import { useSelector, useDispatch } from "react-redux";
 import SideBar from "../component/SideBar";
 import MessageComponent from "../component/MessageComponent";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  selectedConversationSuccess,
+
+} from "../redux/userSlice.js";
 
 function Home() {
   const { selectedConversation } = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
+
+
+
+
+
+
+
+const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleBackButton = () => {
+      if (location.pathname.includes("/")) {
+        navigate("/"); 
+         dispatch(selectedConversationSuccess(null));
+
+      }
+    };
+
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, [location, navigate]);
+
+
+
 
   return (
     <div className="max-w-[1400px] mx-auto flex h-screen rounded-lg">

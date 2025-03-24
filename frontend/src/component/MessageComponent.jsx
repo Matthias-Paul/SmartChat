@@ -13,7 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function MessageComponent() {
   const queryClient = useQueryClient();
-  const chatContainerRef = useRef();
+  const lastMessageRef = useRef();
 
   const [sendMessage, setSendMessage] = useState("");
   const { loggedInUser, selectedConversation, messages } = useSelector(
@@ -35,16 +35,11 @@ function MessageComponent() {
     return () => dispatch(selectedConversationSuccess(null));
   }, [dispatch]);
 
-useEffect(() => {
-  const chatContainer = chatContainerRef.current;
-  if (chatContainer) {
-    chatContainer.scrollTo({
-      top: chatContainer.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-}, [messages]);
-
+  useEffect(() => {
+    setTimeout(() => {
+      lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }, [messages]);
 
   // Fetch Messages
   const { data } = useQuery({
@@ -173,9 +168,7 @@ useEffect(() => {
               messages.map((msg, index) => (
                 <div
                   key={msg._id || index}
-                  ref={chatContainerRef}
-                  className={`flex ${index === 0 ? "pt-[75px] " : ""} px-[12px] w-full flex-col `}
-                >
+                  className={`flex ${index === 0 ? "pt-[75px] " : ""} px-[12px] w-full flex-col `}>
                   <div
                     className={`flex ${msg?.senderId === loggedInUser?._id ? "flex-row-reverse " : ""} gap-x-[5px] items-center`}
                   >
@@ -190,7 +183,9 @@ useEffect(() => {
                   <div className={`float-right ${msg?.senderId === loggedInUser?._id ? "" : "flex-row-reverse ml-[45px] "} flex justify-end mr-[45px] text-gray-400 text-sm`}>
                     {msg?.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : ""}
                   </div>
-                </div>
+                  <div  ref={lastMessageRef} > </div>
+                </div >
+               
               ))
             ) : (
               <div className="text-center pt-[75px] text-[18px] text-gray-400">No messages yet</div>

@@ -115,27 +115,30 @@ const handleSearch = (e) => {
               index === users.length - 1 ? "border-none" : "border-b-[0.5px]"
             }  border-gray-200 pb-[15px]  cursor-pointer px-[12px] py-[10px]`}
           >
-            <div className="flex items-center">
-             <div className="relative flex items-center h-[50px] w-[40px]  " >
+            <div className="flex justify-between items-center">
+             <div className=" flex items-center   " >
                <img
                 className="w-[40px]  h-[40px] flex-shrink-0 rounded-[50%]"
                 src={user?.profilePicture || profile}
                 alt="Profile"
               />
-              {
-                isOnline && onlineUsers.includes(user._id)  ?  (
-                  <div className="absolute mt-[-78px] top-[20px] z-100 right-[-4px] text-[60px] text-orange-900" > . </div>
-
-                ): ( 
-                  null
-                )
-              }
-              </div>
               <div className="flex text-[18px] ml-[6px] flex-col">
                 <div>{user?.fullName}</div>
                 
               </div>
+              </div>
+            
+                   {
+                isOnline && onlineUsers.includes(user._id)  ?  (
+                  <div className="text-[16px] sm:text-[20px] text-orange-900" >Online </div>
+
+                ): ( 
+                  <div className="text-[16px] sm:text-[20px] text-green-900" > Offline </div>
+
+                )
+              }
             </div>
+           
           </div>
         ))}
       </div>

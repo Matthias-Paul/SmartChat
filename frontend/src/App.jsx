@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import Header from "./component/Header.jsx";
 import SideBar from "./component/SideBar";
 import LogIn from "./pages/LogIn.jsx";
+import ForgetPassword from "./pages/ForgetPassword.jsx";
+
 import SignUp from "./pages/SignUp.jsx";
 import Home from "./pages/Home.jsx";
 import { Toaster } from "react-hot-toast";
@@ -26,6 +28,7 @@ function App() {
           element={loggedInUser ? <SideBar /> : <Navigate to="/log-in" />}
         />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/log-in" element={<LogIn />} />
       </Routes>
       <Toaster />

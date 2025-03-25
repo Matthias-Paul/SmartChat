@@ -117,7 +117,7 @@ export const logIn = async (req, res) => {
             return res.status(400).json({
                 statusCode: 400,
                 success: false,
-                message: "Invalid username or password!",
+                message: "Incorrect password!",
             });
         }
 

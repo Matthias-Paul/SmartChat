@@ -105,6 +105,14 @@ const logInMutation = useMutation({
                 className="w-full  rounded-lg  focus:outline-blue-500  p-[7px] border  mt-[6px]"
               />
             </div>
+              <div className="mt-[5px] text-start text-[15px]">
+              <span>Forget Password?</span>
+              <NavLink className="text-[blue] ml-[5px]" to="/forget-password">
+
+              Recover Now
+              </NavLink>
+
+            </div>
 
             <button
               type="submit"

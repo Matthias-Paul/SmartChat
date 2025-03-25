@@ -54,7 +54,7 @@ export const generateOTP = async (req, res) => {
        html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
           <h2 style="color: #0056b3; text-align: center;">🔒 Secure OTP Verification</h2>
-          <p>Dear, ${userEmail.fullName}</p>
+          <p>Dear, ${userEmail?.fullName}</p>
           <p>You have requested a One-Time Password (OTP) for verification. Please use the OTP below to proceed:</p>
           <p style="font-size: 24px; font-weight: bold; text-align: center; color: #000;">${OTP}</p>
           <p> Do not share this OTP with anyone.</p>
@@ -86,42 +86,29 @@ export const generateOTP = async (req, res) => {
 
 export const verifyOTP = async (req, res) => {
   try {
-    const { otp } = req.query;
-    
-    if (!otp) {
-      return res.status(400).json({
-        statusCode: 400,
-        success: false,
-        message: "OTP is required",
-      });
+    const { email, otp } = req.query;
+
+    if (!otp || !email) {
+      return res.status(400).json({ success: false, message: "OTP and email are required" });
     }
 
-   if (String(req.app.locals.OTP) === String(otp)) {
-      req.app.locals.OTP = null;
-      req.app.locals.resetSession = true;
+    const user = await User.findOne({ email });
 
-      return res.status(200).json({
-        statusCode: 200,
-        success: true,
-        message: "OTP verified successfully",
-      });
+    if (!user || user.otp !== otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
+    // Clear OTP after verification
+    user.otp = null;
+    await user.save();
 
-    return res.status(400).json({
-      statusCode: 400,
-      success: false,
-      message: "Invalid OTP",
-    });
+    return res.status(200).json({ success: true, message: "OTP verified successfully" });
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    return res.status(500).json({
-      statusCode: 500,
-      success: false,
-      message: "Internal server error",
-    });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 
 export const createResetSession = async (req, res) => {
   try {
@@ -151,57 +138,31 @@ export const createResetSession = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    if (!req.app.locals.resetSession) {
-      return res.status(440).json({
-        statusCode: 440,
-        success: false,
-        message: "Session expired",
-      });
-    }
-
-    const {  password, confirmPassword } = req.body;
-
     const { email } = req.query;
+    const { password, confirmPassword } = req.body;
 
     if ( !password || !confirmPassword) {
-      return res.status(400).json({
-        statusCode: 400,
-        success: false,
-        message: "All fields are required",
-      });
+      return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
     if (password !== confirmPassword) {
-      return res.status(400).json({
-        statusCode: 400,
-        success: false,
-        message: "Passwords do not match",
-      });
+      return res.status(400).json({ success: false, message: "Passwords do not match" });
     }
 
     const user = await User.findOne({ email });
+
     if (!user) {
-      return res.status(404).json({
-        statusCode: 404,
-        success: false,
-        message: "User not found",
-      });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await User.updateOne({ email }, { password: hashedPassword });
+    user.password = hashedPassword;
+    user.otp = null; // Clear OTP after reset
+    await user.save();
 
-    return res.status(200).json({
-      statusCode: 200,
-      success: true,
-      message: "Password reset successfully",
-    });
+    return res.status(200).json({ success: true, message: "Password reset successfully" });
   } catch (error) {
     console.error("Error resetting password:", error);
-    return res.status(500).json({
-      statusCode: 500,
-      success: false,
-      message: "Internal server error",
-    });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

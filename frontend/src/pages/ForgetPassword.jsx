@@ -2,11 +2,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
+import { useDispatch} from "react-redux";
+import {  setEmailForForgotPasssword } from "../redux/userSlice.js";
 
 function ForgetPassword() {
   const [email, setEmail] = useState("")
     const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch()
    const navigate = useNavigate()
 
     const generateOTPMutation = useMutation({
@@ -34,8 +36,8 @@ function ForgetPassword() {
       },
       onSuccess:(data)=>{
         setEmail("")
-              setLoading(false);
-
+        setLoading(false);
+        dispatch(setEmailForForgotPasssword(email))
         toast.success(data.message)
          setTimeout(() => navigate("/verify-OTP"), 1000);
 

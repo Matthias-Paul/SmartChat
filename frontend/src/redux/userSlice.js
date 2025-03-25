@@ -3,6 +3,7 @@ import {createSlice} from "@reduxjs/toolkit"
 const initialState ={
     loggedInUser: null,
     selectedConversation: null,
+    forgotPasswordEmail: null,
     messages: [],
     users:[]
 }       
@@ -27,6 +28,9 @@ const userSlice = createSlice({
       setUsersSuccess: (state, action)=>{
         state.users = action.payload
       },
+      setEmailForForgotPasssword: (state, action)=>{
+        state.forgotPasswordEmail = action.payload
+      },
        
     }
     
@@ -38,6 +42,7 @@ export const {
   selectedConversationSuccess,
   setMessagesSuccess,
   setUsersSuccess,
+  setEmailForForgotPasssword
 } = userSlice.actions;
 
 export default userSlice.reducer

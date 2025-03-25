@@ -2,8 +2,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
+import { useSelector} from "react-redux";
+
+
 
 function VerifyOTP() {
+      const { forgotPasswordEmail } = useSelector((state) => state.user);
+     console.log(forgotPasswordEmail)
   const [otp, setOtp] = useState("")
     const [loading, setLoading] = useState(false);
 
@@ -13,7 +18,7 @@ function VerifyOTP() {
       mutationFn: async()=>{
               setLoading(true);
 
-      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}`, {
+      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}&email=${forgotPasswordEmail}`, {
           method: "GET",
         
         })

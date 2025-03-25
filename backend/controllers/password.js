@@ -2,6 +2,7 @@ import OTPGenerator from "otp-generator";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import User from "../models/user.model.js"
+import bcryptjs from "bcryptjs";
 
 
 dotenv.config();
@@ -133,7 +134,9 @@ export const resetPassword = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashPassword = await bcryptjs.hash(password, 10);
+
+
     user.password = hashedPassword;
     user.otp = null; // Clear OTP after reset
     await user.save();

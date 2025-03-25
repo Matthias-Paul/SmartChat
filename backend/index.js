@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["https://smartChat-wtxa.onrender.com"],   
+    origin: [ "http://localhost:5173" ],   //"https://smartChat-wtxa.onrender.com",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,  
   })

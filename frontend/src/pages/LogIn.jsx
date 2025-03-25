@@ -21,7 +21,7 @@ function LogIn() {
 const logInMutation = useMutation({
     mutationFn: async () => {
       setLoading(true);
-      const res = await fetch("https://smartChat-wtxa.onrender.com/api/auth/log-in", {
+      const res = await fetch("http://localhost:8000/api/auth/log-in", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -34,7 +34,7 @@ const logInMutation = useMutation({
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to post comment");
+        throw new Error(errorData.message || "Failed to log in");
       }
       setLoading(false);
       const data = await res.json();

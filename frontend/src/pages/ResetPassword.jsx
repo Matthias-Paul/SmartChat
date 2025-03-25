@@ -8,7 +8,7 @@ import { useSelector} from "react-redux";
 
 function ResetPassword() {
       const { forgotPasswordEmail } = useSelector((state) => state.user);
-     console.log(forgotPasswordEmail)
+     console.log("email:", forgotPasswordEmail)
 
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -16,14 +16,18 @@ function ResetPassword() {
 
    const navigate = useNavigate()
 
-    const verifyOTPMutation = useMutation({
+    const resetPasswordMutation = useMutation({
       mutationFn: async()=>{
               setLoading(true);
 
-      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}&email=${forgotPasswordEmail}`, {
-          method: "GET",
-        
-        })
+           const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/reset-password?email=${forgotPasswordEmail}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password, confirmPassword }),
+      });
         if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to verify OTP");
@@ -37,7 +41,8 @@ function ResetPassword() {
 
       },
       onSuccess:(data)=>{
-        setOtp("")
+        setPassword("")
+        setConfirmPassword("")
               setLoading(false);
 
         toast.success(data.message)
@@ -55,7 +60,7 @@ function ResetPassword() {
 
   const handleSubmit = async(e)=>{
     e.preventDefault()
-    verifyOTPMutation.mutate()
+    resetPasswordMutation.mutate()
   }
 
   return (
@@ -66,7 +71,7 @@ function ResetPassword() {
             {" "}
             SmartChat{" "}
           </span>
-          <h1 className="  text-[30px] font-[500] "> Verify OTP </h1>
+          <h1 className="  text-[30px] font-[500] "> Reset Password </h1>
          <form onSubmit={handleSubmit} >
             <div className="flex text-start flex-col mt-[22px]">
               <label htmlFor="password">Enter Password</label>
@@ -94,7 +99,7 @@ function ResetPassword() {
               className={`w-full  p-[10px] text-lg rounded-lg font-[500] text-white mt-[30px] cursor-pointer bg-[blue] activ:bg-black"
              `}
             >
-                            { loading ? "Updating ..." : "Update Password"}
+                            { loading ? "Reseting ..." : "Reset Password"}
 
            
             </button>

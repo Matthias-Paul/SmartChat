@@ -5,7 +5,7 @@ import SideBar from "./component/SideBar";
 import LogIn from "./pages/LogIn.jsx";
 import ForgetPassword from "./pages/ForgetPassword.jsx";
 import VerifyOTP from "./pages/VerifyOTP.jsx";
-// import ResetPassword from "./pages/ResetPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 
 import SignUp from "./pages/SignUp.jsx";
@@ -35,7 +35,7 @@ function App() {
         <Route path="/log-in" element={<LogIn />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/verify-OTP" element={<VerifyOTP />} />
-         {/* <Route path="/reset-password" element={<ResetPassword />} /> */}
+         <Route path="/reset-password" element={<ResetPassword />} />
 
       </Routes>
       <Toaster />

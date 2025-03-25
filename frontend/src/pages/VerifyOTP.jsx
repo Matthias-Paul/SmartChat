@@ -8,7 +8,7 @@ import { useSelector} from "react-redux";
 
 function VerifyOTP() {
       const { forgotPasswordEmail } = useSelector((state) => state.user);
-     console.log(forgotPasswordEmail)
+     console.log("email:", forgotPasswordEmail)
   const [otp, setOtp] = useState("")
     const [loading, setLoading] = useState(false);
 
@@ -39,7 +39,7 @@ function VerifyOTP() {
               setLoading(false);
 
         toast.success(data.message)
-         setTimeout(() => navigate("/log-in"), 1000);
+         setTimeout(() => navigate("/reset-password"), 1000);
 
       },
       onError: (error)=>{

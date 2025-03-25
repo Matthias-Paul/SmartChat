@@ -13,8 +13,11 @@ function VerifyOTP() {
       mutationFn: async()=>{
               setLoading(true);
 
-      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}`)     if (!res.ok) {
+      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}`, {
+          method: "GET",
         
+        })
+        if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to verify OTP");
         }
@@ -75,7 +78,7 @@ function VerifyOTP() {
               className={`w-full  p-[10px] text-lg rounded-lg font-[500] text-white mt-[30px] cursor-pointer bg-[blue] activ:bg-black"
              `}
             >
-                            { loading ? "Requesting ..." : "Request OTP"}
+                            { loading ? "Verifying ..." : "Verify OTP"}
 
            
             </button>

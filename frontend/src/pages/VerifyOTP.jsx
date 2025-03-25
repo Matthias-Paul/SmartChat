@@ -13,8 +13,8 @@ function VerifyOTP() {
       mutationFn: async()=>{
               setLoading(true);
 
-      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}`, {
-      if (!res.ok) {
+      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}`)     if (!res.ok) {
+        
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to verify OTP");
         }

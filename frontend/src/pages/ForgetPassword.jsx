@@ -9,13 +9,13 @@ function ForgetPassword() {
 
     const generateOTPMutation = useMutation({
       mutationFn: async()=>{
-        const res = await fetch("http://localhost:8000/api/password/generate-OTP",{
+        const res = await fetch("https://smartChat-wtxa.onrender.com/api/password/generate-OTP",{
           method: "POST",
           credentials: "include",
           headers:{
             "Content-Type":"application/json"
           },
-          body: JSON.stringify(email)
+          body: JSON.stringify({email})
         })
         if (!res.ok) {
         const errorData = await res.json();

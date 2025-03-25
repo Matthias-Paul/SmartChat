@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         enum:["male", "female"]
     },
     otp:{
-        type:String,
+        type:mongoose.Schema.Types.Mixed,
         unique:true,
     },
 

@@ -11,7 +11,6 @@ function ForgetPassword() {
       mutationFn: async()=>{
         const res = await fetch("https://smartChat-wtxa.onrender.com/api/password/generate-OTP",{
           method: "POST",
-          credentials: "include",
           headers:{
             "Content-Type":"application/json"
           },

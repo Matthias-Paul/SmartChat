@@ -1,7 +1,7 @@
 import express from "express"
 import { generateOTP, verifyOTP, createResetSession, resetPassword  } from "../controllers/password.js"
 const router = express.Router()
-import localVariable from "../middleware/protectRoute.js"
+import { localVariable } from "../middleware/protectRoute.js"
 
      
 

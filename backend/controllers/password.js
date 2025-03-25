@@ -96,7 +96,7 @@ export const verifyOTP = async (req, res) => {
       });
     }
 
-    if (parseInt(req.app.locals.OTP) === parseInt(otp)) {
+   if (String(req.app.locals.OTP) === String(otp)) {
       req.app.locals.OTP = null;
       req.app.locals.resetSession = true;
 
@@ -106,6 +106,7 @@ export const verifyOTP = async (req, res) => {
         message: "OTP verified successfully",
       });
     }
+
 
     return res.status(400).json({
       statusCode: 400,
@@ -158,9 +159,11 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    const { email, password, confirmPassword } = req.body;
+    const {  password, confirmPassword } = req.body;
 
-    if (!email || !password || !confirmPassword) {
+    const { email } = req.query;
+
+    if ( !password || !confirmPassword) {
       return res.status(400).json({
         statusCode: 400,
         success: false,

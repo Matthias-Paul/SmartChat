@@ -28,8 +28,9 @@ function App() {
           element={loggedInUser ? <SideBar /> : <Navigate to="/log-in" />}
         />
         <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/forget-password" element={<ForgetPassword />} />
+        
         <Route path="/log-in" element={<LogIn />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
       </Routes>
       <Toaster />
     </BrowserRouter>

@@ -43,7 +43,7 @@ function ForgetPassword() {
 
   const handleSubmit = async(e)=>{
     e.preventDefault()
-    generateOTPMutation.mutate(email)
+    generateOTPMutation.mutate()
   }
 
   return (

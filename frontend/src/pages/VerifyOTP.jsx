@@ -3,26 +3,20 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 
-function ForgetPassword() {
-  const [email, setEmail] = useState("")
+function VerifyOTP() {
+  const [otp, setOtp] = useState("")
     const [loading, setLoading] = useState(false);
 
    const navigate = useNavigate()
 
-    const generateOTPMutation = useMutation({
+    const verifyOTPMutation = useMutation({
       mutationFn: async()=>{
               setLoading(true);
 
-        const res = await fetch("https://smartChat-wtxa.onrender.com/api/password/generate-OTP",{
-          method: "POST",
-          headers:{
-            "Content-Type":"application/json"
-          },
-          body: JSON.stringify({email})
-        })
-        if (!res.ok) {
+      const res = await fetch(`https://smartchat-wtxa.onrender.com/api/password/verify-OTP?otp=${otp}`, {
+      if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to generate OTP");
+        throw new Error(errorData.message || "Failed to verify OTP");
         }
               setLoading(false);
 
@@ -33,11 +27,11 @@ function ForgetPassword() {
 
       },
       onSuccess:(data)=>{
-        setEmail("")
+        setOtp("")
               setLoading(false);
 
         toast.success(data.message)
-         setTimeout(() => navigate("/verify-OTP"), 1000);
+         setTimeout(() => navigate("/reset-password"), 1000);
 
       },
       onError: (error)=>{
@@ -51,7 +45,7 @@ function ForgetPassword() {
 
   const handleSubmit = async(e)=>{
     e.preventDefault()
-    generateOTPMutation.mutate()
+    verifyOTPMutation.mutate()
   }
 
   return (
@@ -62,15 +56,15 @@ function ForgetPassword() {
             {" "}
             SmartChat{" "}
           </span>
-          <h1 className="  text-[30px] font-[500] "> Forget Password </h1>
+          <h1 className="  text-[30px] font-[500] "> Verify OTP </h1>
          <form onSubmit={handleSubmit} >
             <div className="flex text-start flex-col mt-[22px]">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="otp">Enter OTP</label>
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e)=> setEmail(e.target.value)}
+                type="text"
+                id="otp"
+                value={otp}
+                onChange={(e)=> setOtp(e.target.value)}
                 className="w-full  rounded-lg  focus:outline-blue-500  p-[7px] border  mt-[6px]"
               />
             </div>
@@ -93,4 +87,4 @@ function ForgetPassword() {
   )
 }
 
-export default ForgetPassword
+export default VerifyOTP

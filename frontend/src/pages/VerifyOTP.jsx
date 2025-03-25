@@ -34,7 +34,7 @@ function VerifyOTP() {
               setLoading(false);
 
         toast.success(data.message)
-         setTimeout(() => navigate("/reset-password"), 1000);
+         setTimeout(() => navigate("/log-in"), 1000);
 
       },
       onError: (error)=>{

@@ -86,9 +86,9 @@ export const generateOTP = async (req, res) => {
 
 export const verifyOTP = async (req, res) => {
   try {
-    const { OTP } = req.query;
+    const { otp } = req.query;
     
-    if (!OTP) {
+    if (!otp) {
       return res.status(400).json({
         statusCode: 400,
         success: false,
@@ -96,7 +96,7 @@ export const verifyOTP = async (req, res) => {
       });
     }
 
-    if (parseInt(req.app.locals.OTP) === parseInt(OTP)) {
+    if (parseInt(req.app.locals.OTP) === parseInt(otp)) {
       req.app.locals.OTP = null;
       req.app.locals.resetSession = true;
 

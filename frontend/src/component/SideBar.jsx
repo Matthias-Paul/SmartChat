@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { logOutSuccess } from "../redux/userSlice.js";
 import { useQuery } from "@tanstack/react-query";
+import {useNavigate} from "react-router-dom"
 import { setUsersSuccess, selectedConversationSuccess } from "../redux/userSlice.js"
 
 import profile from "../assets/background.jpg";
@@ -12,6 +13,7 @@ import profile from "../assets/background.jpg";
 function SideBar() {
 
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const { users, selectedConversation, loggedInUser} = useSelector((state)=> state.user)
     const { onlineUsers } = useSelector((state) => state.socket);
     const isOnline = onlineUsers.includes(loggedInUser?._id)
@@ -71,7 +73,7 @@ function SideBar() {
     const handleSelectedConversation = (user) =>{
 
       dispatch(selectedConversationSuccess(user))
-    
+     navigate("/message");
     }
      
 const handleSearch = (e) => {

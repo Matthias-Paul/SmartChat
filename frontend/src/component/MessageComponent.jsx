@@ -9,11 +9,14 @@ import {
 } from "../redux/userSlice.js";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+import {useNavigate} from "react-router-dom"
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function MessageComponent() {
   const queryClient = useQueryClient();
   const lastMessageRef = useRef();
+  const navigate = useNavigate()
 
   const [sendMessage, setSendMessage] = useState("");
   const { loggedInUser, selectedConversation, messages } = useSelector(
@@ -30,6 +33,10 @@ function MessageComponent() {
   const handleBack = () => {
     dispatch(selectedConversationSuccess(null));
   };
+  if (!selectedConversation) {
+    navigate("/side-bar");
+    return null;
+  }
 
   useEffect(() => {
     return () => dispatch(selectedConversationSuccess(null));

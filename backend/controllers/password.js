@@ -134,14 +134,16 @@ export const resetPassword = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const hashPassword = await bcryptjs.hash(password, 10);
+    const hashedPassword = await bcryptjs.hash(password, 10);
 
 
     user.password = hashedPassword;
     user.otp = null; // Clear OTP after reset
     await user.save();
+    
 
     return res.status(200).json({ success: true, message: "Password reset successfully" });
+
   } catch (error) {
     console.error("Error resetting password:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });

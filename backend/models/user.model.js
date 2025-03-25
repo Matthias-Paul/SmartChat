@@ -28,7 +28,11 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
         enum:["male", "female"]
-    }
+    },
+    otp:{
+        type:String,
+        unique:true,
+    },
 
 },{timestamps: true})
 

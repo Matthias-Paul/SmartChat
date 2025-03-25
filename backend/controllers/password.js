@@ -19,67 +19,45 @@ export const generateOTP = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({
-        statusCode: 400,
-        success: false,
-        message: "Email is required",
-      });
+      return res.status(400).json({ success: false, message: "Email is required" });
     }
     
-    const userEmail = await User.findOne({email})
+    const userEmail = await User.findOne({ email });
 
-    if(!userEmail){    
+    if (!userEmail) {
+      return res.status(400).json({ success: false, message: "Please enter a correct email address!" });
+    }
 
-    return res.status(400).json({
-        statusCode: 400,
-        success: false,
-        message:"Please enter a correct email address! "
-    })
-}
-    
-    const OTP = OTPGenerator.generate(6, {
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    });
+    const OTP = OTPGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
 
-    req.app.locals.OTP = OTP; 
+    // Store OTP in the user's database record
+    userEmail.otp = OTP;
+    await userEmail.save();
+
     console.log("Generated OTP:", OTP);
 
-    
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Your OTP Code",
-       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
+      subject: "Secure OTP Verification",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px;">
           <h2 style="color: #0056b3; text-align: center;">🔒 Secure OTP Verification</h2>
-          <p>Dear, ${userEmail?.fullName}</p>
+          <p>Dear ${userEmail?.fullName || "User"},</p>
           <p>You have requested a One-Time Password (OTP) for verification. Please use the OTP below to proceed:</p>
           <p style="font-size: 24px; font-weight: bold; text-align: center; color: #000;">${OTP}</p>
-          <p> Do not share this OTP with anyone.</p>
+          <p>Do not share this OTP with anyone.</p>
           <p>If you did not request this OTP, please ignore this email.</p>
-          <hr>
-        
         </div>
       `,
     };
 
-    // Send email
     await transporter.sendMail(mailOptions);
 
-    return res.status(201).json({
-      statusCode: 201,
-      success: true,   
-      message: "OTP sent successfully to your email.",
-    });
+    return res.status(201).json({ success: true, message: "OTP sent successfully to your email." });
   } catch (error) {
     console.error("Error sending OTP:", error);
-    return res.status(500).json({
-      statusCode: 500,
-      success: false,
-      message: "Error generating OTP",
-    });
+    return res.status(500).json({ success: false, message: "Error generating OTP" });
   }
 };
 
@@ -89,7 +67,7 @@ export const verifyOTP = async (req, res) => {
     const { email, otp } = req.query;
 
     if (!otp || !email) {
-      return res.status(400).json({ success: false, message: "OTP and email are required" });
+      return res.status(400).json({ success: false, message: "OTP is required" });
     }
 
     const user = await User.findOne({ email });

@@ -33,10 +33,7 @@ function MessageComponent() {
   const handleBack = () => {
     dispatch(selectedConversationSuccess(null));
   };
-  if (!selectedConversation) {
-    navigate("/side-bar");
-    return null;
-  }
+ 
 
   useEffect(() => {
     return () => dispatch(selectedConversationSuccess(null));

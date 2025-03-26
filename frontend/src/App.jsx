@@ -6,9 +6,7 @@ import ForgetPassword from "./pages/ForgetPassword.jsx";
 import VerifyOTP from "./pages/VerifyOTP.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
 import SignUp from "./pages/SignUp.jsx";
-import Home from "./pages/Home.jsx";
-import SideBar from "./component/SideBar.jsx";
-import MessageComponent from "./component/MessageComponent.jsx";
+import Home from "./pages/Home.jsx"; // New chat page
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -18,27 +16,12 @@ function App() {
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route
-          path="/"
-          element={loggedInUser ? <Home /> : <Navigate to="/log-in" />}
-        />
+        <Route path="/" element={loggedInUser ? <Home /> : <Navigate to="/log-in" />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/log-in" element={<LogIn />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/verify-OTP" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-
-        {/* Sidebar Page */}
-        <Route
-          path="/side-bar"
-          element={loggedInUser ? <SideBar /> : <Navigate to="/log-in" />}
-        />
-
-        {/* Message Page */}
-        <Route
-          path="/message"
-          element={loggedInUser ? <MessageComponent /> : <Navigate to="/log-in" />}
-        />
       </Routes>
       <Toaster />
     </BrowserRouter>

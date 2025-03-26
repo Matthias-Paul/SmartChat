@@ -73,7 +73,7 @@ function SideBar() {
     const handleSelectedConversation = (user) =>{
 
       dispatch(selectedConversationSuccess(user))
-     navigate("/message");
+     
     }
      
 const handleSearch = (e) => {
